@@ -75,7 +75,7 @@
                 document.getElementById("member-stats").innerHTML =
                     "Members: " + stats.total + " | Awake: " + stats.awake + " | Asleep: " + stats.asleep;
 
-                const headers = ["Governor", "Rank", "Power", "Level", "Discord", "Country", "UTC Offset", "Current Time"];
+                const headers = Object.keys(players[0]);
                 const thead = document.querySelector("#members-table thead");
                 const tbody = document.querySelector("#members-table tbody");
 
