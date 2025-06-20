@@ -1,17 +1,31 @@
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Alliance Members</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <style>
+        #members-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        table.dataTable {
+            width: 100% !important;
+        }
+    </style>
 </head>
 <body>
     <h1>Alliance Members</h1>
-    <table id="members-table" class="display" style="width:100%">
-        <thead></thead>
-        <tbody></tbody>
-    </table>
+    <div id="members-container">
+        <table id="members-table" class="display">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -19,14 +33,14 @@
         fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSVBEV9yCsYcLUu-LUxSle5iXDFGnxA8Uzqj-1_plOWTnux73w64geayRzhnz_kRMs2Ff3bRdmRrdpK/pub?output=csv")
             .then(response => response.text())
             .then(csvText => {
-                const lines = csvText.split('\n').filter(line => line);
+                const lines = csvText.split('\\n').filter(line => line.trim() !== "");
                 const headers = lines[0].split(',');
                 const rows = lines.slice(1).map(row => row.split(','));
 
                 const thead = document.querySelector("#members-table thead");
                 const tbody = document.querySelector("#members-table tbody");
 
-                // Build table headers
+                // Build headers
                 const headerRow = document.createElement("tr");
                 headers.forEach(header => {
                     const th = document.createElement("th");
@@ -35,7 +49,7 @@
                 });
                 thead.appendChild(headerRow);
 
-                // Build table rows
+                // Build rows
                 rows.forEach(row => {
                     const tr = document.createElement("tr");
                     row.forEach(cell => {
@@ -47,7 +61,12 @@
                 });
 
                 // Initialize DataTable
-                $('#members-table').DataTable();
+                $('#members-table').DataTable({
+                    paging: true,
+                    searching: true,
+                    info: false,
+                    scrollX: true
+                });
             });
     </script>
 </body>
