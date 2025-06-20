@@ -50,15 +50,18 @@
                 thead.appendChild(headerRow);
 
                 // Build rows
-                rows.forEach(row => {
-                    const tr = document.createElement("tr");
-                    row.forEach(cell => {
-                        const td = document.createElement("td");
-                        td.textContent = cell;
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
-                });
+               rows.forEach(row => {
+    if (row.length !== headers.length) return; // skip invalid rows
+
+    const tr = document.createElement("tr");
+    row.forEach(cell => {
+        const td = document.createElement("td");
+        td.textContent = cell;
+        tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+});
+
 
                 // Initialize DataTable
                 $('#members-table').DataTable({
