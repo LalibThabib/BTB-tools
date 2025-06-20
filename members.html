@@ -79,11 +79,17 @@
                         return num.toString();
                     }
                         function formatTimeOnly(value) {
-                        const date = new Date(value);
-                        if (isNaN(date.getTime())) return value; // fallback if date is invalid
-
-                        return date.toISOString().substr(11, 5); // HH:MM from ISO string
+                        if (typeof value === "string" && value.startsWith("1899-12-30T")) {
+        // Strip the fake Excel base date and just get HH:MM
+                         return value.substring(11, 16);
                     }
+
+                        const date = new Date(value);
+                        if (isNaN(date.getTime())) return value;
+
+                        return date.toISOString().substring(11, 16);
+                    }
+
 
 
                 document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
