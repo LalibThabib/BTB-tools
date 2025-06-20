@@ -91,21 +91,24 @@
                     const tr = document.createElement("tr");
 
                     headers.forEach(h => {
-                        const td = document.createElement("td");
-                        let cellData = row[h];
+    const td = document.createElement("td");
+    let cellData = row[h];
 
-                        if (h === "Discord" && cellData) {
-                            const link = document.createElement("a");
-                            link.href = cellData;
-                            link.textContent = cellData;
-                            link.target = "_blank";
-                            td.appendChild(link);
-                        } else {
-                            td.textContent = cellData;
-                        }
+    if (h === "Discord" && cellData) {
+        const link = document.createElement("a");
+        link.href = cellData;
+        link.textContent = cellData;
+        link.target = "_blank";
+        td.appendChild(link);
+    } else if (h === "Power" && cellData) {
+        td.textContent = formatPower(cellData);
+    } else {
+        td.textContent = cellData;
+    }
 
-                        tr.appendChild(td);
-                    });
+    tr.appendChild(td);
+});
+
 
                     tbody.appendChild(tr);
                 });
