@@ -80,19 +80,10 @@
                     }
                         function formatTimeOnly(value) {
     if (typeof value === "string" && value.includes("T")) {
-        return value.substring(11, 16); // Get HH:mm from ISO
+        return value.substring(11, 16); // Get HH:mm from ISO string
     }
     return value;
 }
-
-
-    const date = new Date(value);
-    if (isNaN(date.getTime())) return value;
-
-    return date.toISOString().substring(11, 16);
-}
-
-
 
 
                 document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
