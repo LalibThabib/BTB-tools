@@ -69,6 +69,20 @@
             .then(res => res.json())
             .then(data => {
                 const { utcTime, lastUpdated, stats, players } = data;
+                
+                function formatPower(value) {
+                        const num = parseFloat(value);
+                        if (isNaN(num)) return value;
+
+                        if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+                        if (num >= 1_000) return (num / 1_000).toFixed(0) + "K";
+                        return num.toString();
+                    }
+                    function formatTimeOnly(isoString) {
+                        if (!isoString || typeof isoString !== "string") return isoString;
+                        const match = isoString.match(/T(\d{2}:\d{2})/);
+                        return match ? match[1] : isoString;
+                    }
 
                 document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
                 document.getElementById("last-updated").textContent = "Last Updated: " + lastUpdated;
@@ -89,20 +103,6 @@
 
                 players.forEach(row => {
                     const tr = document.createElement("tr");
-
-                    function formatPower(value) {
-                        const num = parseFloat(value);
-                        if (isNaN(num)) return value;
-
-                        if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-                        if (num >= 1_000) return (num / 1_000).toFixed(0) + "K";
-                        return num.toString();
-                    }
-                    function formatTimeOnly(isoString) {
-                        if (!isoString || typeof isoString !== "string") return isoString;
-                        const match = isoString.match(/T(\d{2}:\d{2})/);
-                        return match ? match[1] : isoString;
-                    }
 
                     headers.forEach(h => {
                         const td = document.createElement("td");
