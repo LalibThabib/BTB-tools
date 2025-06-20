@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alliance Members</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+</head>
+<body>
+    <h1>Alliance Members</h1>
+    <table id="members-table" class="display" style="width:100%">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script>
+        fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSVBEV9yCsYcLUu-LUxSle5iXDFGnxA8Uzqj-1_plOWTnux73w64geayRzhnz_kRMs2Ff3bRdmRrdpK/pub?output=csv")
+            .then(response => response.text())
+            .then(csvText => {
+                const lines = csvText.split('\n').filter(line => line);
+                const headers = lines[0].split(',');
+                const rows = lines.slice(1).map(row => row.split(','));
+
+                const thead = document.querySelector("#members-table thead");
+                const tbody = document.querySelector("#members-table tbody");
+
+                // Build table headers
+                const headerRow = document.createElement("tr");
+                headers.forEach(header => {
+                    const th = document.createElement("th");
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+
+                // Build table rows
+                rows.forEach(row => {
+                    const tr = document.createElement("tr");
+                    row.forEach(cell => {
+                        const td = document.createElement("td");
+                        td.textContent = cell;
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+
+                // Initialize DataTable
+                $('#members-table').DataTable();
+            });
+    </script>
+</body>
+</html>
