@@ -118,8 +118,8 @@
         td.appendChild(link);
     } else if (h === "Power" && cellData) {
         td.textContent = formatPower(cellData);
-    } else if (h === "Current Time" && cellData) {
-        td.textContent = formatTimeOnly(cellData);
+    } else if (h.toLowerCase() === "time" && cellData) {
+    td.textContent = formatTimeOnly(cellData);
     } else {
         td.textContent = cellData;
     }
