@@ -79,10 +79,12 @@
                         return num.toString();
                     }
                         function formatTimeOnly(value) {
-    if (typeof value === "string" && value.startsWith("1899-12-30T")) {
-        // Extract and return just the HH:mm portion
-        return value.substring(11, 16);
+    if (typeof value === "string" && value.includes("T")) {
+        return value.substring(11, 16); // Get HH:mm from ISO
     }
+    return value;
+}
+
 
     const date = new Date(value);
     if (isNaN(date.getTime())) return value;
