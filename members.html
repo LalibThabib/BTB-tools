@@ -79,16 +79,17 @@
                         return num.toString();
                     }
                         function formatTimeOnly(value) {
-                        if (typeof value === "string" && value.startsWith("1899-12-30T")) {
-        // Strip the fake Excel base date and just get HH:MM
-                         return value.substring(11, 16);
-                    }
+    if (typeof value === "string" && value.startsWith("1899-12-30T")) {
+        // Extract and return just the HH:mm portion
+        return value.substring(11, 16);
+    }
 
-                        const date = new Date(value);
-                        if (isNaN(date.getTime())) return value;
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return value;
 
-                        return date.toISOString().substring(11, 16);
-                    }
+    return date.toISOString().substring(11, 16);
+}
+
 
 
 
