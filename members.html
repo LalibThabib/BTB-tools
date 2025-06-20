@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,22 +6,54 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <style>
-        #members-container {
-            max-width: 1200px;
-            margin: auto;
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
             padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        #summary {
+            margin-bottom: 30px;
+        }
+
+        .summary-box {
+            margin: 10px auto;
+            padding: 10px 20px;
+            background: white;
+            display: inline-block;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        #main-table {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
         }
+
         table.dataTable {
             width: 100% !important;
+        }
+
+        table th, table td {
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <h1>Alliance Members</h1>
-    <div id="members-container">
+    <div id="summary">
+        <div class="summary-box" id="utc-time">Loading UTC time...</div><br>
+        <div class="summary-box" id="last-updated">Loading last updated...</div>
+        <div class="summary-box" id="member-stats">Loading member stats...</div>
+    </div>
+
+    <div id="main-table">
         <table id="members-table" class="display">
             <thead></thead>
             <tbody></tbody>
@@ -30,45 +63,61 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
-    fetch("https://script.google.com/macros/s/AKfycbyM1rTQEeJr2I74PO99_V0Iav4H-yWZH2TDHvTvKZ0sDNNlm5ruxMc9qZFgLI4rNLyySQ/exec")
-        .then(response => response.text())
-        .then(csvText => {
-            const lines = csvText.split('\\n').filter(line => line.trim() !== "");
-            const headers = lines[0].split(',');
-            const rows = lines.slice(1).map(row => row.split(','));
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbyM1rTQEeJr2I74PO99_V0Iav4H-yWZH2TDHvTvKZ0sDNNlm5ruxMc9qZFgLI4rNLyySQ/exec";
 
-            const thead = document.querySelector("#members-table thead");
-            const tbody = document.querySelector("#members-table tbody");
+        fetch(scriptUrl)
+            .then(res => res.json())
+            .then(data => {
+                const { utcTime, lastUpdated, stats, players } = data;
 
-            const headerRow = document.createElement("tr");
-            headers.forEach(header => {
-                const th = document.createElement("th");
-                th.textContent = header;
-                headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
+                document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
+                document.getElementById("last-updated").textContent = "Last Updated: " + lastUpdated;
+                document.getElementById("member-stats").innerHTML =
+                    "Members: " + stats.total + " | Awake: " + stats.awake + " | Asleep: " + stats.asleep;
 
-            rows.forEach(row => {
-                if (row.length !== headers.length) return; // skip invalid rows
+                const headers = ["Player name", "Rank", "Power", "Level", "Discord", "Country", "UTC Offset", "Current Time"];
+                const thead = document.querySelector("#members-table thead");
+                const tbody = document.querySelector("#members-table tbody");
 
-                const tr = document.createElement("tr");
-                row.forEach(cell => {
-                    const td = document.createElement("td");
-                    td.textContent = cell;
-                    tr.appendChild(td);
+                const headerRow = document.createElement("tr");
+                headers.forEach(h => {
+                    const th = document.createElement("th");
+                    th.textContent = h;
+                    headerRow.appendChild(th);
                 });
-                tbody.appendChild(tr);
-            });
+                thead.appendChild(headerRow);
 
-            $('#members-table').DataTable({
-                paging: false,       // ❌ remove pagination
-                info: false,         // ❌ remove “Showing 1 to X of Y”
-                lengthChange: false, // ❌ remove "Show entries"
-                scrollX: true,       // ✅ scroll table horizontally if needed
-                searching: true,     // ✅ keep search for now
-            });
-        });
-</script>
+                players.forEach(row => {
+                    const tr = document.createElement("tr");
 
+                    headers.forEach(h => {
+                        const td = document.createElement("td");
+                        let cellData = row[h];
+
+                        if (h === "Discord" && cellData) {
+                            const link = document.createElement("a");
+                            link.href = cellData;
+                            link.textContent = cellData;
+                            link.target = "_blank";
+                            td.appendChild(link);
+                        } else {
+                            td.textContent = cellData;
+                        }
+
+                        tr.appendChild(td);
+                    });
+
+                    tbody.appendChild(tr);
+                });
+
+                $('#members-table').DataTable({
+                    paging: true,
+                    info: false,
+                    searching: true,
+                    lengthChange: false,
+                    scrollX: true
+                });
+            });
+    </script>
 </body>
 </html>
