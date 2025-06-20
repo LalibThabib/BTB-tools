@@ -78,11 +78,13 @@
                         if (num >= 1_000) return (num / 1_000).toFixed(0) + "K";
                         return num.toString();
                     }
-                    function formatTimeOnly(isoString) {
-                        if (!isoString || typeof isoString !== "string") return isoString;
-                        const match = isoString.match(/T(\d{2}:\d{2})/);
-                        return match ? match[1] : isoString;
+                        function formatTimeOnly(value) {
+                        const date = new Date(value);
+                        if (isNaN(date.getTime())) return value; // fallback if date is invalid
+
+                        return date.toISOString().substr(11, 5); // HH:MM from ISO string
                     }
+
 
                 document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
                 document.getElementById("last-updated").textContent = "Last Updated: " + lastUpdated;
