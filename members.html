@@ -30,7 +30,7 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
-    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSVBEV9yCsYcLUu-LUxSle5iXDFGnxA8Uzqj-1_plOWTnux73w64geayRzhnz_kRMs2Ff3bRdmRrdpK/pub?output=csv")
+    fetch("https://script.google.com/macros/s/AKfycbyM1rTQEeJr2I74PO99_V0Iav4H-yWZH2TDHvTvKZ0sDNNlm5ruxMc9qZFgLI4rNLyySQ/exec")
         .then(response => response.text())
         .then(csvText => {
             const lines = csvText.split('\\n').filter(line => line.trim() !== "");
