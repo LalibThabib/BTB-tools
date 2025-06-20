@@ -68,7 +68,7 @@
         fetch(scriptUrl)
             .then(res => res.json())
             .then(data => {
-                const { utcTime, lastUpdated, stats, s } = data;
+                const { utcTime, lastUpdated, stats, players } = data;
 
                 document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
                 document.getElementById("last-updated").textContent = "Last Updated: " + lastUpdated;
