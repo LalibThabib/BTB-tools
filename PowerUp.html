@@ -90,7 +90,14 @@
         const rows = res.result.values;
         if (!rows || rows.length < 2) return;
         const tA = rows[rows.length - 1];
-        document.getElementById('total-power').textContent = `BoB Power: ${tA[1] || '--'}`;
+        const bobPower = parseInt(tA[1] || 0);
+const bobFormatted = new Intl.NumberFormat('en', {
+  notation: 'compact',
+  maximumFractionDigits: 2
+}).format(bobPower);
+
+document.getElementById('total-power').textContent = `BoB Power: ${bobFormatted}`;
+
         document.getElementById('power-24h').textContent = `24H PowerUp: ${tA[2] || '--'}`;
 
         let weekAgo = rows.find(r => {
