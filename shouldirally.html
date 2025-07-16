@@ -56,7 +56,7 @@
           range: RANGE,
         });
       }).then(response => {
-        const data = response.result.values.slice(1); // Skip headers
+        const data = response.result.values.slice(4); // Skip to row 5
         const filtered = data.filter(row => row[0] && row[2]); // Make sure name and power exist
         const sorted = filtered.sort((a, b) => parseInt(b[2]) - parseInt(a[2]));
 
