@@ -176,6 +176,10 @@ fetch(scriptUrl)
   })
   .catch(err => console.error("Error loading member data:", err));
 
+      const thead = document.querySelector("#members-table thead");
+      const tbody = document.querySelector("#members-table tbody");
+
+
 thead.appendChild(headerRow);
 
 players.forEach(row => {
@@ -198,6 +202,8 @@ players.forEach(row => {
 
         tr.appendChild(td);
     });
+
+  
 
     tbody.appendChild(tr);
 });
