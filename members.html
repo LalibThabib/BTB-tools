@@ -175,46 +175,30 @@ fetch(scriptUrl)
     renderTable(players);
   })
   .catch(err => console.error("Error loading member data:", err));
-
-      const thead = document.querySelector("#members-table thead");
-      const tbody = document.querySelector("#members-table tbody");
-
-
-thead.appendChild(headerRow);
-
-players.forEach(row => {
-    const tr = document.createElement("tr");
-
-    headers.forEach(h => {
-        const td = document.createElement("td");
-        let cellData = row[h];
-
-      if (h === "Power" && cellData) {
-  const raw = parseFloat(String(cellData).replace(/,/g, '')) || 0;
-  td.textContent = formatPower(cellData);
-  td.setAttribute('data-order', raw); // sorting reference
+// Try cached data first
+const cachedData = loadFromCache();
+if (cachedData) {
+  renderTable(cachedData.players);
 }
- else if (h.toLowerCase() === "time" && cellData) {
-            td.textContent = formatTimeOnly(cellData);
-        } else {
-            td.textContent = cellData;
-        }
 
-        tr.appendChild(td);
-    });
+// Always fetch fresh in the background
+fetch(scriptUrl)
+  .then(res => res.json())
+  .then(data => {
+    const { utcTime, lastUpdated, stats, players } = data;
 
-  
+    // Update summary info
+    document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
+    document.getElementById("last-updated").textContent = "Last Updated: " + lastUpdated;
+    document.getElementById("member-stats").innerHTML =
+      "Members: " + stats.total + " | Awake: " + stats.awake + " | Asleep: " + stats.asleep;
 
-    tbody.appendChild(tr);
-});
+    // Save to cache and render
+    saveToCache({ players });
+    renderTable(players);
+  })
+  .catch(err => console.error("Error loading member data:", err));
 
-                $('#members-table').DataTable({
-                    paging: false,
-                    info: false,
-                    searching: true,
-                    lengthChange: false,
-                    scrollX: true
-                });
     </script>
 </body>
 </html>
