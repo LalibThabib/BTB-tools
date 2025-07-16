@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Power Gains</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    a.home-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .mini-table {
+      display: inline-block;
+      vertical-align: top;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin: 20px;
+      padding: 10px;
+      background: #fff;
+    }
+    .mini-table p {
+      margin: 8px 0;
+      font-weight: bold;
+    }
+    table.gains {
+      border-collapse: collapse;
+      width: 90%;
+      margin: 20px auto;
+      background: #fff;
+    }
+    table.gains th, table.gains td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    table.gains th {
+      background: #eee;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="home-button">Home</a>
+  <h1>Power Gains</h1>
+
+  <div id="summary">
+    <div class="mini-table">
+      <p id="total-power">BoB Power: --</p>
+      <p id="power-24h">24H PowerUp: --</p>
+      <p id="power-7d">7D PowerUp: --</p>
+    </div>
+    <div class="mini-table">
+      <p id="top-24h">#1 24H PowerUp: TIE</p>
+      <p id="top-7d">#1 7D PowerUp: TIE</p>
+    </div>
+  </div>
+
+  <table class="gains" id="player-gains">
+    <thead>
+      <tr>
+        <th data-sort="name">Name</th>
+        <th data-sort="gain24">24H Gain</th>
+        <th data-sort="gain7">7D Gain</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script>
+    const SHEET_ID = '1zhPWij4tcnLIL4XO3ajF5tMuSzUl9eBvoqcMUJrkiZ4';
+    const RANGE = 'PowerTotals!A:C';
+    const KEY = 'YOUR_GOOGLE_API_KEY';
+
+    function init() {
+      gapi.client.init({
+        apiKey: KEY,
+        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
+      }).then(() => gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SHEET_ID,
+        range: RANGE
+      })).then(res => {
+        const rows = res.result.values;
+        if (!rows || rows.length < 2) return;
+        const tA = rows[rows.length - 1];
+        document.getElementById('total-power').textContent = `BoB Power: ${tA[1] || '--'}`;
+        document.getElementById('power-24h').textContent = `24H PowerUp: ${tA[2] || '--'}`;
+
+        let weekAgo = rows.find(r => {
+          const d = new Date(r[0]);
+          return (new Date() - d) >= 7 * 24 * 60 * 60 * 1000;
+        }) || tA;
+        document.getElementById('power-7d').textContent = `7D PowerUp: ${tA[2] - (weekAgo[2] || tA[2])}`;
+
+        const gainRange = 'PowerGains!A:C';
+        return gapi.client.sheets.spreadsheets.values.get({
+          spreadsheetId: SHEET_ID,
+          range: gainRange
+        });
+      }).then(res => {
+        const data = res.result.values;
+        if (!data || data.length < 2) return;
+
+        const header = data[1];
+        const players = data.slice(2).map(r => ({
+          name: r[0],
+          gain24: +r[1] || 0,
+          gain7: +r[2] || 0
+        }));
+        populatePlayers(players);
+      }).catch(console.error);
+    }
+
+    function populatePlayers(players) {
+      updateTop(players, 'gain24', 'top-24h');
+      updateTop(players, 'gain7', 'top-7d');
+
+      const tbody = document.querySelector('#player-gains tbody');
+      players.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.name}</td><td>${p.gain24}</td><td>${p.gain7}</td>`;
+        tbody.appendChild(tr);
+      });
+      enableSort();
+    }
+
+    function updateTop(players, key, elId) {
+      const max = Math.max(...players.map(p => p[key]));
+      const top = players.filter(p => p[key] === max).map(p => p.name);
+      document.getElementById(elId).textContent =
+        `#1 ${key === 'gain24' ? '24H' : '7D'} PowerUp: ${top.length > 1 ? 'TIE' : `${top[0]} (${max})`}`;
+    }
+
+    function enableSort() {
+      document.querySelectorAll('th[data-sort]').forEach(th => th.addEventListener('click', () => {
+        const key = th.dataset.sort;
+        const asc = !th.asc;
+        th.asc = asc;
+
+        const rows = Array.from(document.querySelectorAll('#player-gains tbody tr'));
+        rows.sort((a, b) => {
+          const va = key === 'name' ? a.cells[0].textContent : +a.cells[key === 'gain24' ? 1 : 2].textContent;
+          const vb = key === 'name' ? b.cells[0].textContent : +b.cells[key === 'gain24' ? 1 : 2].textContent;
+          return va > vb ? (asc ? 1 : -1) : va < vb ? (asc ? -1 : 1) : 0;
+        });
+        const tbody = document.querySelector('#player-gains tbody');
+        rows.forEach(r => tbody.appendChild(r));
+      }));
+    }
+
+    gapi.load('client', init);
+  </script>
+</body>
+</html>
