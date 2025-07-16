@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Should I create a rally?</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    a.home-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    table {
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      width: 300px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="home-button">Home</a>
+  <h1>Should I create a rally?</h1>
+
+  <p>If you are not one of these players; NO</p>
+  <table id="table1">
+    <tr><th>Name</th><th>Power</th></tr>
+  </table>
+
+  <p>If too many are missing; you CAN create a rally IF you are one of these players</p>
+  <table id="table2">
+    <tr><th>Name</th><th>Power</th></tr>
+  </table>
+
+  <!-- Load Google API -->
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script>
+    const SPREADSHEET_ID = '1zhPWij4tcnLIL4XO3ajF5tMuSzUl9eBvoqcMUJrkiZ4';
+    const RANGE = 'Sheet1!A:C'; // adjust "Sheet1" if your tab is named differently
+    const API_KEY = 'AIzaSyDep63nWFdX_ldOMVxw-lMJ6yLJGAclhw0'; // 🔑 Replace this with your actual Google API key
+
+    function init() {
+      gapi.client.init({
+        'apiKey': API_KEY,
+        'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+      }).then(() => {
+        return gapi.client.sheets.spreadsheets.values.get({
+          spreadsheetId: SPREADSHEET_ID,
+          range: RANGE,
+        });
+      }).then(response => {
+        const data = response.result.values.slice(1); // Skip headers
+        const filtered = data.filter(row => row[0] && row[2]); // Ensure name and power exist
+        const sorted = filtered.sort((a, b) => parseInt(b[2]) - parseInt(a[2]));
+
+        const top3 = sorted.slice(0, 3);
+        const next9 = sorted.slice(3, 12);
+
+        fillTable('table1', top3);
+        fillTable('table2', next9);
+      }).catch(err => {
+        console.error('Error loading data from Google Sheets:', err);
+      });
+    }
+
+    function fillTable(tableId, rows) {
+      const table = document.getElementById(tableId);
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${row[0]}</td><td>${row[2]}</td>`;
+        table.appendChild(tr);
+      });
+    }
+
+    gapi.load('client', init);
+  </script>
+</body>
+</html>
