@@ -236,9 +236,11 @@
       const seconds = launchTimeSec % 60;
 
       const resultText = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-
-      document.getElementById('result').innerHTML =
-        `LAUNCH your rally at exactly: <span onclick="copyResultToClipboard('${resultText}')">${resultText}</span>`;
+      
+document.getElementById('result').innerHTML = `
+  LAUNCH your rally at exactly: <span onclick="copyResultToClipboard('${resultText}')">${resultText}</span>
+  <div style="font-size: 0.85em; font-style: italic; margin-top: 5px;">(tap result to copy to clipboard)</div>
+`;
 
       // Countdown
       const now = new Date();
