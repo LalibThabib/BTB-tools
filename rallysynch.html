@@ -11,33 +11,26 @@
       max-width: 600px;
       margin: auto;
     }
+
     h1 {
       text-align: center;
     }
+
     label {
       display: block;
       margin-top: 20px;
       font-weight: bold;
+      text-align: center;
     }
-    .radio-group {
+
+    .radio-group, .field-group {
       display: flex;
+      justify-content: center;
       gap: 20px;
       margin-top: 10px;
-      justify-content: center;
+      flex-wrap: wrap;
     }
-    .field-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      align-items: center;
-      justify-content: center;
-    }
-    input[type="number"] {
-      width: 70px;
-      padding: 6px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
+
     button {
       margin-top: 30px;
       padding: 10px 20px;
@@ -47,16 +40,39 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
+
     #result {
       margin-top: 20px;
       font-size: 1.2em;
       font-weight: bold;
+      text-align: center;
     }
+
     .error {
       color: red;
       font-size: 0.9em;
-      margin-left: 10px;
+      text-align: center;
+      margin-top: 5px;
+    }
+
+    .hybrid-input {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hybrid-input input,
+    .hybrid-input select {
+      width: 70px;
+      margin: 2px 0;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      text-align: center;
     }
   </style>
 </head>
@@ -69,25 +85,83 @@
   <div class="radio-group">
     <label><input type="radio" name="rallyTime" value="1"> 1 min</label>
     <label><input type="radio" name="rallyTime" value="5"> 5 min</label>
-    <span class="error" id="rallyTimeError"></span>
   </div>
+  <div id="rallyTimeError" class="error"></div>
 
   <!-- March Time -->
   <label>March Time:</label>
   <div class="field-group">
-    <input type="number" id="marchMinutes" placeholder="Min" min="0" value="0">
-    <input type="number" id="marchSeconds" placeholder="Sec" min="0" max="59">
-    <span class="error" id="marchTimeError"></span>
+    <!-- March Minutes -->
+    <div class="hybrid-input">
+      <input type="number" id="marchMinutes" placeholder="Min" min="0" value="0">
+      <select onchange="document.getElementById('marchMinutes').value = this.value;">
+        <option value="">--</option>
+        <script>
+          for (let i = 0; i < 60; i++) {
+            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+          }
+        </script>
+      </select>
+    </div>
+
+    <!-- March Seconds -->
+    <div class="hybrid-input">
+      <input type="number" id="marchSeconds" placeholder="Sec" min="0" max="59">
+      <select onchange="document.getElementById('marchSeconds').value = this.value;">
+        <option value="">--</option>
+        <script>
+          for (let i = 0; i < 60; i++) {
+            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+          }
+        </script>
+      </select>
+    </div>
   </div>
+  <div id="marchTimeError" class="error"></div>
 
   <!-- Hit Time -->
   <label>Rally HIT Time Target:</label>
   <div class="field-group">
-    <input type="number" id="hitHours" placeholder="Hrs" min="0" max="23">
-    <input type="number" id="hitMinutes" placeholder="Min" min="0" max="59">
-    <input type="number" id="hitSeconds" placeholder="Sec" min="0" max="59">
-    <span class="error" id="hitTimeError"></span>
+    <!-- Hit Hours -->
+    <div class="hybrid-input">
+      <input type="number" id="hitHours" placeholder="Hrs" min="0" max="23">
+      <select onchange="document.getElementById('hitHours').value = this.value;">
+        <option value="">--</option>
+        <script>
+          for (let i = 0; i < 24; i++) {
+            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+          }
+        </script>
+      </select>
+    </div>
+
+    <!-- Hit Minutes -->
+    <div class="hybrid-input">
+      <input type="number" id="hitMinutes" placeholder="Min" min="0" max="59">
+      <select onchange="document.getElementById('hitMinutes').value = this.value;">
+        <option value="">--</option>
+        <script>
+          for (let i = 0; i < 60; i++) {
+            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+          }
+        </script>
+      </select>
+    </div>
+
+    <!-- Hit Seconds -->
+    <div class="hybrid-input">
+      <input type="number" id="hitSeconds" placeholder="Sec" min="0" max="59">
+      <select onchange="document.getElementById('hitSeconds').value = this.value;">
+        <option value="">--</option>
+        <script>
+          for (let i = 0; i < 60; i++) {
+            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+          }
+        </script>
+      </select>
+    </div>
   </div>
+  <div id="hitTimeError" class="error"></div>
 
   <!-- Calculate Button -->
   <button onclick="calculateLaunchTime()">Calculate</button>
@@ -107,7 +181,7 @@
       document.getElementById('hitTimeError').textContent = '';
       document.getElementById('result').textContent = '';
 
-      // Get rally time (radio)
+      // Rally time
       const rallyRadios = document.getElementsByName('rallyTime');
       let rallyMinutes = null;
       for (let radio of rallyRadios) {
@@ -121,7 +195,7 @@
         return;
       }
 
-      // Get march time
+      // March time
       const marchMinutes = parseInt(document.getElementById('marchMinutes').value);
       const marchSeconds = parseInt(document.getElementById('marchSeconds').value);
       if (isNaN(marchMinutes) || isNaN(marchSeconds)) {
@@ -129,7 +203,7 @@
         return;
       }
 
-      // Get hit time
+      // Hit time
       const hitHours = parseInt(document.getElementById('hitHours').value);
       const hitMinutes = parseInt(document.getElementById('hitMinutes').value);
       const hitSeconds = parseInt(document.getElementById('hitSeconds').value);
@@ -138,7 +212,7 @@
         return;
       }
 
-      // Convert everything to seconds
+      // Time math
       const rallyTimeSec = rallyMinutes * 60;
       const marchTimeSec = marchMinutes * 60 + marchSeconds;
       const hitTimeSec = hitHours * 3600 + hitMinutes * 60 + hitSeconds;
