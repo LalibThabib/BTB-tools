@@ -113,7 +113,7 @@ players.forEach(row => {
     const raw = parseFloat(cellData.replace(/,/g, '')) || 0;
     td.textContent = formatPower(cellData);
     td.setAttribute('data-order', raw); // sorting reference
-}
+
         } else if (h.toLowerCase() === "time" && cellData) {
             td.textContent = formatTimeOnly(cellData);
         } else {
