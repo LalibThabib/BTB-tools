@@ -106,8 +106,11 @@ players.forEach(row => {
         const td = document.createElement("td");
         let cellData = row[h];
 
-        if (h === "Power" && cellData) {
-            td.textContent = formatPower(cellData);
+      if (h === "Power" && cellData) {
+    const raw = parseFloat(cellData.replace(/,/g, '')) || 0;
+    td.textContent = formatPower(cellData);
+    td.setAttribute('data-order', raw); // sorting reference
+}
         } else if (h.toLowerCase() === "time" && cellData) {
             td.textContent = formatTimeOnly(cellData);
         } else {
