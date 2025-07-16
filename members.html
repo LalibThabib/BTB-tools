@@ -103,6 +103,22 @@ function renderTable(players) {
     th.textContent = h;
     headerRow.appendChild(th);
   });
+  
+  function formatPower(value) {
+  const num = parseFloat(value);
+  if (isNaN(num)) return value;
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+  if (num >= 1_000) return (num / 1_000).toFixed(0) + "K";
+  return num.toString();
+}
+
+function formatTimeOnly(value) {
+  if (typeof value === "string" && value.includes("T")) {
+    return value.substring(11, 16); // Get HH:mm from ISO string
+  }
+  return value;
+}
+
   thead.appendChild(headerRow);
 
   players.forEach(row => {
