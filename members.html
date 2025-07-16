@@ -61,45 +61,105 @@
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script>
+    <script> 
         const scriptUrl = "https://script.google.com/macros/s/AKfycbyM1rTQEeJr2I74PO99_V0Iav4H-yWZH2TDHvTvKZ0sDNNlm5ruxMc9qZFgLI4rNLyySQ/exec";
 
-        fetch(scriptUrl)
-            .then(res => res.json())
-            .then(data => {
-                const { utcTime, lastUpdated, stats, players } = data;
-                
-                function formatPower(value) {
-                        const num = parseFloat(value);
-                        if (isNaN(num)) return value;
+      // Caching setup
+const CACHE_KEY = "membersData";
+const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-                        if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-                        if (num >= 1_000) return (num / 1_000).toFixed(0) + "K";
-                        return num.toString();
-                    }
-                        function formatTimeOnly(value) {
-    if (typeof value === "string" && value.includes("T")) {
-        return value.substring(11, 16); // Get HH:mm from ISO string
+function loadFromCache() {
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (!cached) return null;
+
+  try {
+    const parsed = JSON.parse(cached);
+    if (Date.now() - parsed.timestamp < CACHE_EXPIRY) {
+      return parsed.data;
     }
-    return value;
+  } catch (e) {
+    console.warn("Failed to parse cached data:", e);
+  }
+  return null;
 }
 
+function saveToCache(data) {
+  localStorage.setItem(CACHE_KEY, JSON.stringify({
+    timestamp: Date.now(),
+    data
+  }));
+}
+function renderTable(players) {
+  const headers = Object.keys(players[0]).filter(h => h !== "Discord" && h.toLowerCase() !== "utc");
+  const thead = document.querySelector("#members-table thead");
+  const tbody = document.querySelector("#members-table tbody");
 
-                document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
-                document.getElementById("last-updated").textContent = "Last Updated: " + lastUpdated;
-                document.getElementById("member-stats").innerHTML =
-                    "Members: " + stats.total + " | Awake: " + stats.awake + " | Asleep: " + stats.asleep;
+  thead.innerHTML = "";
+  tbody.innerHTML = "";
 
-                const headers = Object.keys(players[0]).filter(h => h !== "Discord" && h.toLowerCase() !== "utc");
-const thead = document.querySelector("#members-table thead");
-const tbody = document.querySelector("#members-table tbody");
-
-const headerRow = document.createElement("tr");
-headers.forEach(h => {
+  const headerRow = document.createElement("tr");
+  headers.forEach(h => {
     const th = document.createElement("th");
     th.textContent = h;
     headerRow.appendChild(th);
-});
+  });
+  thead.appendChild(headerRow);
+
+  players.forEach(row => {
+    const tr = document.createElement("tr");
+    headers.forEach(h => {
+      const td = document.createElement("td");
+      const cellData = row[h];
+
+      if (h === "Power" && cellData) {
+        const raw = typeof cellData === 'string' ? parseFloat(cellData.replace(/,/g, '')) : cellData;
+        td.textContent = formatPower(cellData);
+        td.setAttribute('data-order', raw);
+      } else if (h.toLowerCase() === "time" && cellData) {
+        td.textContent = formatTimeOnly(cellData);
+      } else {
+        td.textContent = cellData;
+      }
+
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  $('#members-table').DataTable({
+    destroy: true,
+    paging: false,
+    info: false,
+    searching: true,
+    lengthChange: false,
+    scrollX: true
+  });
+}
+
+       // Try cached data first
+const cachedData = loadFromCache();
+if (cachedData) {
+  renderTable(cachedData.players);
+}
+
+// Always fetch fresh in the background
+fetch(scriptUrl)
+  .then(res => res.json())
+  .then(data => {
+    const { utcTime, lastUpdated, stats, players } = data;
+
+    // Update summary info
+    document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
+    document.getElementById("last-updated").textContent = "Last Updated: " + lastUpdated;
+    document.getElementById("member-stats").innerHTML =
+      "Members: " + stats.total + " | Awake: " + stats.awake + " | Asleep: " + stats.asleep;
+
+    // Save to cache and render
+    saveToCache({ players });
+    renderTable(players);
+  })
+  .catch(err => console.error("Error loading member data:", err));
+
 thead.appendChild(headerRow);
 
 players.forEach(row => {
