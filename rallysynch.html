@@ -12,8 +12,14 @@
       margin: auto;
     }
 
-    h1 {
+    h1, .clock {
       text-align: center;
+    }
+
+    .clock {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      font-weight: bold;
     }
 
     label {
@@ -45,7 +51,7 @@
       margin-right: auto;
     }
 
-    #result {
+    #result, #countdown, #copiedMsg {
       margin-top: 20px;
       font-size: 1.2em;
       font-weight: bold;
@@ -74,10 +80,23 @@
       border: 1px solid #ccc;
       text-align: center;
     }
+
+    #copiedMsg {
+      color: green;
+      font-size: 0.9em;
+      display: none;
+    }
+
+    #result span {
+      cursor: pointer;
+      color: #007bff;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
 
+  <div class="clock" id="utcClock">UTC Time: --:--:--</div>
   <h1>Rally Sync</h1>
 
   <!-- Rally Time -->
@@ -91,29 +110,18 @@
   <!-- March Time -->
   <label>March Time:</label>
   <div class="field-group">
-    <!-- March Minutes -->
     <div class="hybrid-input">
-      <input type="number" id="marchMinutes" placeholder="Min" min="0" value="0">
+      <input type="number" id="marchMinutes" placeholder="Min" min="0" value="0" oninput="syncSelect('marchMinutes')">
       <select onchange="document.getElementById('marchMinutes').value = this.value;">
         <option value="">--</option>
-        <script>
-          for (let i = 0; i < 60; i++) {
-            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
-          }
-        </script>
+        <script>for (let i = 0; i < 60; i++) document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);</script>
       </select>
     </div>
-
-    <!-- March Seconds -->
     <div class="hybrid-input">
-      <input type="number" id="marchSeconds" placeholder="Sec" min="0" max="59">
+      <input type="number" id="marchSeconds" placeholder="Sec" min="0" max="59" oninput="syncSelect('marchSeconds')">
       <select onchange="document.getElementById('marchSeconds').value = this.value;">
         <option value="">--</option>
-        <script>
-          for (let i = 0; i < 60; i++) {
-            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
-          }
-        </script>
+        <script>for (let i = 0; i < 60; i++) document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);</script>
       </select>
     </div>
   </div>
@@ -122,42 +130,25 @@
   <!-- Hit Time -->
   <label>Rally HIT Time Target:</label>
   <div class="field-group">
-    <!-- Hit Hours -->
     <div class="hybrid-input">
-      <input type="number" id="hitHours" placeholder="Hrs" min="0" max="23">
+      <input type="number" id="hitHours" placeholder="Hrs" min="0" max="23" oninput="syncSelect('hitHours')">
       <select onchange="document.getElementById('hitHours').value = this.value;">
         <option value="">--</option>
-        <script>
-          for (let i = 0; i < 24; i++) {
-            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
-          }
-        </script>
+        <script>for (let i = 0; i < 24; i++) document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);</script>
       </select>
     </div>
-
-    <!-- Hit Minutes -->
     <div class="hybrid-input">
-      <input type="number" id="hitMinutes" placeholder="Min" min="0" max="59">
+      <input type="number" id="hitMinutes" placeholder="Min" min="0" max="59" oninput="syncSelect('hitMinutes')">
       <select onchange="document.getElementById('hitMinutes').value = this.value;">
         <option value="">--</option>
-        <script>
-          for (let i = 0; i < 60; i++) {
-            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
-          }
-        </script>
+        <script>for (let i = 0; i < 60; i++) document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);</script>
       </select>
     </div>
-
-    <!-- Hit Seconds -->
     <div class="hybrid-input">
-      <input type="number" id="hitSeconds" placeholder="Sec" min="0" max="59">
+      <input type="number" id="hitSeconds" placeholder="Sec" min="0" max="59" oninput="syncSelect('hitSeconds')">
       <select onchange="document.getElementById('hitSeconds').value = this.value;">
         <option value="">--</option>
-        <script>
-          for (let i = 0; i < 60; i++) {
-            document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
-          }
-        </script>
+        <script>for (let i = 0; i < 60; i++) document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);</script>
       </select>
     </div>
   </div>
@@ -166,22 +157,41 @@
   <!-- Calculate Button -->
   <button onclick="calculateLaunchTime()">Calculate</button>
 
-  <!-- Result -->
+  <!-- Result & Countdown -->
   <div id="result"></div>
+  <div id="countdown"></div>
+  <div id="copiedMsg">Result copied to clipboard ✅</div>
 
   <script>
     function pad(num) {
       return String(num).padStart(2, '0');
     }
 
-    function calculateLaunchTime() {
-      // Reset error messages
-      document.getElementById('rallyTimeError').textContent = '';
-      document.getElementById('marchTimeError').textContent = '';
-      document.getElementById('hitTimeError').textContent = '';
-      document.getElementById('result').textContent = '';
+    function syncSelect(id) {
+      const val = document.getElementById(id).value;
+      const select = document.getElementById(id).nextElementSibling;
+      select.value = val;
+    }
 
-      // Rally time
+    function updateUTCClock() {
+      const now = new Date();
+      const utc = now.toISOString().substr(11, 8); // HH:MM:SS
+      document.getElementById('utcClock').textContent = 'UTC Time: ' + utc;
+    }
+    setInterval(updateUTCClock, 1000);
+    updateUTCClock();
+
+    let countdownInterval;
+
+    function calculateLaunchTime() {
+      clearInterval(countdownInterval);
+      document.getElementById('copiedMsg').style.display = 'none';
+
+      // Reset errors & outputs
+      ['rallyTimeError', 'marchTimeError', 'hitTimeError'].forEach(id => document.getElementById(id).textContent = '');
+      document.getElementById('result').textContent = '';
+      document.getElementById('countdown').textContent = '';
+
       const rallyRadios = document.getElementsByName('rallyTime');
       let rallyMinutes = null;
       for (let radio of rallyRadios) {
@@ -195,7 +205,6 @@
         return;
       }
 
-      // March time
       const marchMinutes = parseInt(document.getElementById('marchMinutes').value);
       const marchSeconds = parseInt(document.getElementById('marchSeconds').value);
       if (isNaN(marchMinutes) || isNaN(marchSeconds)) {
@@ -203,7 +212,6 @@
         return;
       }
 
-      // Hit time
       const hitHours = parseInt(document.getElementById('hitHours').value);
       const hitMinutes = parseInt(document.getElementById('hitMinutes').value);
       const hitSeconds = parseInt(document.getElementById('hitSeconds').value);
@@ -212,7 +220,6 @@
         return;
       }
 
-      // Time math
       const rallyTimeSec = rallyMinutes * 60;
       const marchTimeSec = marchMinutes * 60 + marchSeconds;
       const hitTimeSec = hitHours * 3600 + hitMinutes * 60 + hitSeconds;
@@ -227,10 +234,40 @@
       const minutes = Math.floor((launchTimeSec % 3600) / 60);
       const seconds = launchTimeSec % 60;
 
-      document.getElementById('result').textContent =
-        `LAUNCH your rally at exactly: ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+      const resultText = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+
+      document.getElementById('result').innerHTML =
+        `LAUNCH your rally at exactly: <span onclick="copyResultToClipboard('${resultText}')">${resultText}</span>`;
+
+      // Countdown
+      const now = new Date();
+      const nowSec = now.getUTCHours() * 3600 + now.getUTCMinutes() * 60 + now.getUTCSeconds();
+      let timeLeft = launchTimeSec - nowSec;
+      if (timeLeft > 0) {
+        countdownInterval = setInterval(() => {
+          if (timeLeft <= 0) {
+            document.getElementById('countdown').textContent = "🚀 Launch NOW!";
+            clearInterval(countdownInterval);
+          } else {
+            document.getElementById('countdown').textContent = `Launch rally in ${timeLeft} seconds`;
+            timeLeft--;
+          }
+        }, 1000);
+      } else {
+        document.getElementById('countdown').textContent = "🚀 Launch NOW!";
+      }
+    }
+
+    function copyResultToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        document.getElementById('copiedMsg').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('copiedMsg').style.display = 'none';
+        }, 2000);
+      });
     }
   </script>
 
 </body>
 </html>
+
