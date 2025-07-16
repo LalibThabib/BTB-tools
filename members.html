@@ -42,7 +42,7 @@
 <body>
     <a href="index.html" class="home-button">Home</a>
 
-    <h1>Alliance Members</h1>
+    <h1>Governors</h1>
     <div id="summary">
         <div class="summary-box" id="utc-time">Loading UTC time...</div><br>
         <div class="summary-box" id="last-updated">Loading last updated...</div>
@@ -87,46 +87,38 @@
                 document.getElementById("member-stats").innerHTML =
                     "Members: " + stats.total + " | Awake: " + stats.awake + " | Asleep: " + stats.asleep;
 
-                const headers = Object.keys(players[0]);
-                const thead = document.querySelector("#members-table thead");
-                const tbody = document.querySelector("#members-table tbody");
+                const headers = Object.keys(players[0]).filter(h => h !== "Discord" && h.toLowerCase() !== "utc");
+const thead = document.querySelector("#members-table thead");
+const tbody = document.querySelector("#members-table tbody");
 
-                const headerRow = document.createElement("tr");
-                headers.forEach(h => {
-                    const th = document.createElement("th");
-                    th.textContent = h;
-                    headerRow.appendChild(th);
-                });
-                thead.appendChild(headerRow);
-
-                players.forEach(row => {
-                    const tr = document.createElement("tr");
-
-                    headers.forEach(h => {
-                        const td = document.createElement("td");
-                        let cellData = row[h];
-
-    if (h === "Discord" && cellData) {
-        const link = document.createElement("a");
-        link.href = cellData;
-        link.textContent = cellData;
-        link.target = "_blank";
-        td.appendChild(link);
-    } else if (h === "Power" && cellData) {
-        td.textContent = formatPower(cellData);
-    } else if (h.toLowerCase() === "time" && cellData) {
-    td.textContent = formatTimeOnly(cellData);
-    } else {
-        td.textContent = cellData;
-    }
-
-    tr.appendChild(td);
+const headerRow = document.createElement("tr");
+headers.forEach(h => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    headerRow.appendChild(th);
 });
+thead.appendChild(headerRow);
 
+players.forEach(row => {
+    const tr = document.createElement("tr");
 
+    headers.forEach(h => {
+        const td = document.createElement("td");
+        let cellData = row[h];
 
-                    tbody.appendChild(tr);
-                });
+        if (h === "Power" && cellData) {
+            td.textContent = formatPower(cellData);
+        } else if (h.toLowerCase() === "time" && cellData) {
+            td.textContent = formatTimeOnly(cellData);
+        } else {
+            td.textContent = cellData;
+        }
+
+        tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+});
 
                 $('#members-table').DataTable({
                     paging: false,
