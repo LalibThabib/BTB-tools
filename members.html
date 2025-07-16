@@ -175,29 +175,7 @@ fetch(scriptUrl)
     renderTable(players);
   })
   .catch(err => console.error("Error loading member data:", err));
-// Try cached data first
-const cachedData = loadFromCache();
-if (cachedData) {
-  renderTable(cachedData.players);
-}
 
-// Always fetch fresh in the background
-fetch(scriptUrl)
-  .then(res => res.json())
-  .then(data => {
-    const { utcTime, lastUpdated, stats, players } = data;
-
-    // Update summary info
-    document.getElementById("utc-time").textContent = "UTC Time: " + utcTime;
-    document.getElementById("last-updated").textContent = "Last Updated: " + lastUpdated;
-    document.getElementById("member-stats").innerHTML =
-      "Members: " + stats.total + " | Awake: " + stats.awake + " | Asleep: " + stats.asleep;
-
-    // Save to cache and render
-    saveToCache({ players });
-    renderTable(players);
-  })
-  .catch(err => console.error("Error loading member data:", err));
 
     </script>
 </body>
