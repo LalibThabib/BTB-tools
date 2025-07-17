@@ -153,7 +153,10 @@ function formatTimeOnly(value) {
         td.textContent = formatTimeOnly(cellData);
      } else if (h === "Governor") {
  
-        let countryName = row["Country"]?.split("-")[0]?.split("–")[0]?.trim().toLowerCase();
+        let rawCountry = row["Country"] || "";
+let normalizedCountry = rawCountry.replace(/[–—−‑‑]/g, "-"); // Replace all dash variants with hyphen-minus
+let countryName = normalizedCountry.split("-")[0].trim().toLowerCase();
+
 const isoCode = countryCodeMap[countryName] || "";
 const flag = isoCode ? getFlagEmoji(isoCode) : "❓";
 if (!isoCode && countryName) {
