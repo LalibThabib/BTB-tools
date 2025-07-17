@@ -152,12 +152,14 @@ function formatTimeOnly(value) {
       } else if (h.toLowerCase() === "time" && cellData) {
         td.textContent = formatTimeOnly(cellData);
      } else if (h === "Governor") {
-  let countryName = row["Country"]?.split("-")[0]?.split("–")[0]?.trim();
-  const isoCode = countryCodeMap[countryName] || "";
-  const flag = isoCode ? getFlagEmoji(isoCode) : "❓";
-        if (!isoCode && countryName) {
+ 
+        let countryName = row["Country"]?.split("-")[0]?.split("–")[0]?.trim().toLowerCase();
+const isoCode = countryCodeMap[countryName] || "";
+const flag = isoCode ? getFlagEmoji(isoCode) : "❓";
+if (!isoCode && countryName) {
   console.warn("Unmatched country:", countryName);
 }
+
 
   td.textContent = `${flag} ${cellData}`;
     } else {
@@ -191,7 +193,11 @@ Promise.all([
   fetch(scriptUrl).then(res => res.json())
 ])
 .then(([countryMap, data]) => {
-  countryCodeMap = countryMap;
+  countryCodeMap = {};
+Object.entries(countryMap).forEach(([key, val]) => {
+  countryCodeMap[key.trim().toLowerCase()] = val;
+});
+
 
   const { utcTime, lastUpdated, stats, players } = data;
 
