@@ -97,11 +97,6 @@ function saveToCache(data) {
 }
       let countryCodeMap = {};
 
-fetch("https://raw.githubusercontent.com/LalibThabib/BTB-tools/main/country_iso_mapping.json")
-  .then(res => res.json())
-  .then(data => {
-    countryCodeMap = data;
-  });
       
 function getFlagEmoji(code) {
   if (!code) return "";
