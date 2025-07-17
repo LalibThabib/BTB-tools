@@ -97,7 +97,7 @@ function saveToCache(data) {
 }
       let countryCodeMap = {};
 
-fetch("data/country_iso_mapping.json")
+fetch("https://raw.githubusercontent.com/LalibThabib/BTB-tools/main/country_iso_mapping.json")
   .then(res => res.json())
   .then(data => {
     countryCodeMap = data;
