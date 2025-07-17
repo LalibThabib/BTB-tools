@@ -186,7 +186,7 @@ if (!isoCode && countryName) {
 const cachedData = loadFromCache();
 if (cachedData) {
   // Wait until country map is loaded before rendering cached data
-  fetch("https://raw.githubusercontent.com/LalibThabib/BTB-tools/main/country_iso_mapping.json")
+  fetch("https://lalibthabib.github.io/BTB-tools/data/country_iso_mapping.json")
     .then(res => res.json())
     .then(countryMap => {
       countryCodeMap = {};
@@ -199,7 +199,7 @@ if (cachedData) {
 
 
 Promise.all([
-  fetch("https://raw.githubusercontent.com/LalibThabib/BTB-tools/main/country_iso_mapping.json").then(res => res.json()),
+  fetch("https://lalibthabib.github.io/BTB-tools/data/country_iso_mapping.json").then(res => res.json()),
   fetch(scriptUrl).then(res => res.json())
 ])
 .then(([countryMap, data]) => {
