@@ -185,8 +185,18 @@ if (!isoCode && countryName) {
        // Try cached data first
 const cachedData = loadFromCache();
 if (cachedData) {
-  renderTable(cachedData.players);
+  // Wait until country map is loaded before rendering cached data
+  fetch("https://raw.githubusercontent.com/LalibThabib/BTB-tools/main/country_iso_mapping.json")
+    .then(res => res.json())
+    .then(countryMap => {
+      countryCodeMap = {};
+      Object.entries(countryMap).forEach(([key, val]) => {
+        countryCodeMap[key.trim().toLowerCase()] = val;
+      });
+      renderTable(cachedData.players);
+    });
 }
+
 
 Promise.all([
   fetch("https://raw.githubusercontent.com/LalibThabib/BTB-tools/main/country_iso_mapping.json").then(res => res.json()),
