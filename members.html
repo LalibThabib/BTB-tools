@@ -95,6 +95,14 @@ function saveToCache(data) {
     data
   }));
 }
+      let countryCodeMap = {};
+
+fetch("data/country_iso_mapping.json")
+  .then(res => res.json())
+  .then(data => {
+    countryCodeMap = data;
+  });
+
 function renderTable(players) {
   const headers = Object.keys(players[0]).filter(h => !["Discord", "UTC", "Country", "Time"].includes(h));
   const thead = document.querySelector("#members-table thead");
