@@ -102,6 +102,15 @@ fetch("https://raw.githubusercontent.com/LalibThabib/BTB-tools/main/country_iso_
   .then(data => {
     countryCodeMap = data;
   });
+      
+function getFlagEmoji(code) {
+  if (!code) return "";
+  return code
+    .trim()
+    .toUpperCase()
+    .replace(/./g, char =>
+      String.fromCodePoint(127397 + char.charCodeAt()));
+}
 
 function renderTable(players) {
   const headers = Object.keys(players[0]).filter(h => !["Discord", "UTC", "Country", "Time"].includes(h));
@@ -147,9 +156,15 @@ function formatTimeOnly(value) {
         td.setAttribute('data-order', raw);
       } else if (h.toLowerCase() === "time" && cellData) {
         td.textContent = formatTimeOnly(cellData);
+      } else if (h === "Governor") {
+      const countryName = row["Country"];
+      const isoCode = countryCodeMap[countryName] || "";
+      const flag = getFlagEmoji(isoCode);
+        td.textContent = `${flag} ${cellData}`;
       } else {
-        td.textContent = cellData;
-      }
+  td.textContent = cellData;
+}
+
 
       tr.appendChild(td);
     });
