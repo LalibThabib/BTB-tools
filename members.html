@@ -155,6 +155,10 @@ function formatTimeOnly(value) {
   let countryName = row["Country"]?.split("-")[0]?.split("–")[0]?.trim();
   const isoCode = countryCodeMap[countryName] || "";
   const flag = isoCode ? getFlagEmoji(isoCode) : "❓";
+        if (!isoCode && countryName) {
+  console.warn("Unmatched country:", countryName);
+}
+
   td.textContent = `${flag} ${cellData}`;
     } else {
   td.textContent = cellData;
